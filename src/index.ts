@@ -8,6 +8,7 @@ import { identityRouter } from './routes/identity.js';
 import { investmentsRouter } from './routes/investments.js';
 import { insightsRouter } from './routes/insights.js';
 import { paymentsRouter } from './routes/payments.js';
+import { favoritesRouter } from './routes/favorites.js';
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -32,14 +33,18 @@ app.use('/api', identityRouter);
 app.use('/api', investmentsRouter);
 app.use('/api', insightsRouter);
 app.use('/api', paymentsRouter);
+app.use('/api', favoritesRouter);
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   // eslint-disable-next-line no-console
   console.error('[pluggy-poc]', err);
-  res.status(500).json({
-    error: 'internal_error',
-    message: err instanceof Error ? err.message : String(err),
-  });
+  const message =
+    err instanceof Error
+      ? err.message
+      : typeof err === 'object' && err && 'message' in err
+        ? String((err as { message: unknown }).message)
+        : String(err);
+  res.status(500).json({ error: 'internal_error', message });
 };
 app.use(errorHandler);
 

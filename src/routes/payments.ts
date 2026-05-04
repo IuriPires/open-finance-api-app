@@ -5,7 +5,11 @@ export const paymentsRouter = Router();
 
 paymentsRouter.post('/payments', async (req, res, next) => {
   try {
-    const { amount, description } = req.body as { amount?: number; description?: string };
+    const { amount, description, recipientId } = req.body as {
+      amount?: number;
+      description?: string;
+      recipientId?: string;
+    };
 
     if (typeof amount !== 'number' || amount <= 0) {
       res.status(400).json({ error: 'amount (number > 0) is required' });
@@ -16,6 +20,7 @@ paymentsRouter.post('/payments', async (req, res, next) => {
       amount,
       description: description ?? 'Pluggy POC payment',
       isSandbox: true,
+      ...(recipientId ? { recipientId } : {}),
     });
 
     res.json({
